@@ -60,7 +60,15 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+#wrapper {
+    width: 100%;
+}
 
+#game-container {
+    margin: 0px auto;
+    border: 1px solid black;
+    width: 700px;
+}
 
 
 
