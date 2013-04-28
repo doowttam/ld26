@@ -1,3 +1,23 @@
+// http://nokarma.org/2011/02/27/javascript-game-development-keyboard-input/index.html
+KEY = {
+    pressed: {},
+    codes: {
+        "LEFT":  37,
+        "UP":    38,
+        "RIGHT": 39,
+        "DOWN":  40
+    },
+    isDown: function(keyCode) {
+        return this.pressed[keyCode];
+    },
+    onKeyDown: function(event) {
+        this.pressed[event.keyCode] = true;
+    },
+    onKeyUp: function(event) {
+        delete this.pressed[event.keyCode];
+    }
+};
+
 OEN = (function(doc, win, $, map) {
     var lastRun = Date.now();
     var canvas  = null;
@@ -11,7 +31,39 @@ OEN = (function(doc, win, $, map) {
         y: 60,
         draw: function(center) {
             var sprite = loader.asset['img/oen_sprites.png'];
-            context.drawImage(sprite, 0, 0, 32, 32, center.x - 3, center.y - 3, 32, 32);
+            var width = 32;
+
+            if ( this.moving ) {
+                if ( Date.now() - this.lastFrame > 150 || !this.lastFrame ) {
+                    this.frame++;
+                    this.lastFrame = Date.now();
+                }
+            }
+            else {
+                this.frame = 0;
+            }
+
+            var offset = width * (this.frame % 4);
+            context.drawImage(sprite, offset, 0, width, width, center.x - (width/2), center.y - (width/2), width, width);
+        },
+        update: function(dt) {
+            this.moving = false;
+            if ( KEY.isDown(KEY.codes.LEFT) ) {
+                hero.x -= Math.ceil(20 * dt);
+                this.moving = true;
+            }
+            if ( KEY.isDown(KEY.codes.RIGHT) ) {
+                hero.x += Math.ceil(20 * dt);
+                this.moving = true;
+            }
+            if ( KEY.isDown(KEY.codes.DOWN) ) {
+                hero.y += Math.ceil(20 * dt);
+                this.moving = true;
+            }
+            if ( KEY.isDown(KEY.codes.UP) ) {
+                hero.y -= Math.ceil(20 * dt);
+                this.moving = true;
+            }
         }
     };
 
@@ -44,6 +96,7 @@ OEN = (function(doc, win, $, map) {
         var dt  = (now - lastRun) / 1000.0;
         canvas.width = canvas.width;
 
+        hero.update(dt);
         drawMap();
 
         lastRun = now;
@@ -128,6 +181,14 @@ OEN = (function(doc, win, $, map) {
             canvas  = doc.getElementById('game-canvas');
             context = canvas.getContext('2d');
 
+            win.addEventListener('keyup', function(e) {
+                KEY.onKeyUp(e);
+            });
+
+            win.addEventListener('keydown', function(e) {
+                KEY.onKeyDown(e);
+            });
+
             loader.init(function() {
                 OEN.play();
             })
@@ -135,22 +196,6 @@ OEN = (function(doc, win, $, map) {
 
         play: function() {
             requestAnimationFrame(drawFrame);
-        },
-
-        moveLeft: function() {
-            hero.x -= 1;
-        },
-
-        moveRight: function() {
-            hero.x += 1;
-        },
-
-        moveUp: function() {
-            hero.y -= 1;
-        },
-
-        moveDown: function() {
-            hero.y += 1;
         }
     };
 }(document, window, jQuery, MAP));
@@ -159,17 +204,3 @@ window.addEventListener('load', function() {
     OEN.init();
 });
 
-window.addEventListener('keydown', function(e) {
-    if ( e.keyCode == 37 ) {
-        OEN.moveLeft();
-    }
-    else if ( e.keyCode == 38 ) {
-        OEN.moveUp();
-    }
-    else if ( e.keyCode == 39 ) {
-        OEN.moveRight();
-    }
-    else if ( e.keyCode == 40 ) {
-        OEN.moveDown();
-    }
-});
