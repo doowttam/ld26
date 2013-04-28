@@ -239,6 +239,14 @@ OEN = (function(doc, win, $, map) {
         hero.draw(center);
     };
 
+    var drawBGTile = function(vpX, vpY) {
+        // Draw the middle tree texture, it'll serve as a background
+        var props   = map.tiles[2];
+        var texture = props.texture;
+        var sprite  = loader.asset['img/oen_sprites.png'];
+        context.drawImage(sprite, texture.offsetX, texture.offsetY, tileSize, tileSize, vpX, vpY, tileSize, tileSize);
+    }
+
     var drawTile = function(tileX, tileY, vpX, vpY, offset) {
         var world = map[currentWorld];
         //console.log('drawing map tile: (' + tileX + ', ' + tileY + ') at (' + vpX + ', ' + vpY + ')');
@@ -246,6 +254,7 @@ OEN = (function(doc, win, $, map) {
         var row = world[tileY];
         // Skip the row if it doesn't exist
         if ( typeof row === 'undefined' ) {
+            drawBGTile(vpX, vpY);
             return;
         }
 
@@ -281,6 +290,9 @@ OEN = (function(doc, win, $, map) {
                 context.fillStyle = color;
                 context.fillRect(vpX, vpY, tileSize, tileSize);
             }
+        }
+        else {
+            drawBGTile(vpX, vpY);
         }
     };
 
