@@ -9,7 +9,13 @@ MAP = {
         };
     },
     tiles: [
-        { collide: 0 }, // Normal ground
+        {
+            collide: 0,
+            texture: {
+                offsetX: 0,
+                offsetY: 82
+            }
+        }, // Normal ground
         // Tree front
         {
             collide: 1,
