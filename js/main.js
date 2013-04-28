@@ -8,7 +8,11 @@ OEN = (function(doc, win, $, map) {
 
     var hero = {
         x: 60,
-        y: 60
+        y: 60,
+        draw: function(center) {
+            var sprite = loader.asset['img/oen_sprites.png'];
+            context.drawImage(sprite, 0, 0, 32, 32, center.x - 3, center.y - 3, 32, 32);
+        }
     };
 
     var loader = {
@@ -80,8 +84,7 @@ OEN = (function(doc, win, $, map) {
             tileY += 1;
         }
 
-        context.fillStyle = 'black';
-        context.fillRect(center.x - 3, center.y - 3, 6, 6);
+        hero.draw(center);
     };
 
     var drawTile = function(tileX, tileY, vpX, vpY, offset) {
