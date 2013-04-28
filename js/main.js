@@ -253,25 +253,34 @@ OEN = (function(doc, win, $, map) {
 
         // If tile exists, draw it
         if ( typeof tile !== 'undefined' ) {
-            var color;
-            if ( tile == 0 ) {
-                color = 'gray';
-            }
-            else if ( tile == 1 ) {
-                color = 'pink';
-            }
-            else if ( tile == 2 ) {
-                color = 'green';
-            }
-            else if ( tile == 3 ) {
-                color = 'red';
+            var props = map.tiles[tile];
+
+            if ( props.texture ) {
+                var texture = props.texture;
+                var sprite  = loader.asset['img/oen_sprites.png'];
+                context.drawImage(sprite, texture.offsetX, texture.offsetY, tileSize, tileSize, vpX, vpY, tileSize, tileSize);
             }
             else {
-                color = 'black';
-            }
+                var color;
+                if ( tile == 0 ) {
+                    color = 'gray';
+                }
+                else if ( tile == 1 ) {
+                    color = 'pink';
+                }
+                else if ( tile == 4 ) {
+                    color = 'green';
+                }
+                else if ( tile == 5 ) {
+                    color = 'red';
+                }
+                else {
+                    color = 'black';
+                }
 
-            context.fillStyle = color;
-            context.fillRect(vpX, vpY, tileSize, tileSize);
+                context.fillStyle = color;
+                context.fillRect(vpX, vpY, tileSize, tileSize);
+            }
         }
     };
 
