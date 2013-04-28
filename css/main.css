@@ -66,8 +66,11 @@ textarea {
 
 #game-container {
     margin: 0px auto;
-    border: 1px solid black;
     width: 700px;
+}
+
+#game-canvas {
+    background: #ff5296;
 }
 
 
