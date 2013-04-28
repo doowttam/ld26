@@ -27,8 +27,8 @@ OEN = (function(doc, win, $, map) {
     var tileSize     = map.tileSize;
 
     var hero = {
-        x: 60,
-        y: 60,
+        x: 0,
+        y: 0,
         draw: function(center) {
             var sprite = loader.asset['img/oen_sprites.png'];
             var width = 32;
@@ -105,12 +105,13 @@ OEN = (function(doc, win, $, map) {
     };
 
     var getCoords = function(coord, center) {
-        var tileOffset = coord % tileSize;
-        var tileCoord  = -1 * tileOffset;
+        var mapTileOffset  = coord % tileSize;
+        var viewportOffset = center % tileSize;
 
-        var offsetTiles = Math.floor(center / tileSize);
-        var mapTile     = (coord - tileOffset) / tileSize;
+        var offsetTiles = Math.ceil(center / tileSize);
+        var mapTile     = (coord - mapTileOffset) / tileSize;
 
+        var tileCoord  = -1 * (viewportOffset + mapTileOffset);
         return {
             firstTileCoord: tileCoord,             // The coord where we start drawing tiles
             firstTile:      mapTile - offsetTiles, // The first tile of the map to draw
