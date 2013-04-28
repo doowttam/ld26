@@ -11,6 +11,30 @@ OEN = (function(doc, win, $, map) {
         y: 60
     };
 
+    var loader = {
+        init: function(callback) {
+            this.finished = callback;
+
+            for ( var i = 0; i < this.images.length; i++ ) {
+                var img = new Image();
+                img.addEventListener('load', function() {
+                    loader.onLoad();
+                });
+                img.src = this.images[i];
+                this.asset[this.images[i]] = img;
+            }
+        },
+        loaded: 0,
+        images: [ 'img/oen_sprites.png' ],
+        asset: {},
+        onLoad: function() {
+            this.loaded++;
+            if ( this.loaded >= this.images.length ) {
+                this.finished();
+            }
+        }
+    };
+
     var drawFrame = function() {
         var now = Date.now();
         var dt  = (now - lastRun) / 1000.0;
@@ -101,7 +125,9 @@ OEN = (function(doc, win, $, map) {
             canvas  = doc.getElementById('game-canvas');
             context = canvas.getContext('2d');
 
-            this.play();
+            loader.init(function() {
+                OEN.play();
+            })
         },
 
         play: function() {
