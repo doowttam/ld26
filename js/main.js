@@ -27,11 +27,20 @@ OEN = (function(doc, win, $, map) {
     var tileSize     = map.tileSize;
 
     var hero = {
-        x: 0,
-        y: 0,
+        x: 325,
+        y: 150,
+        size: 32,
+        getBounds: function(x, y) {
+            return {
+                x1: x - this.size / 2,
+                x2: x + this.size / 2,
+                y1: y - this.size / 2,
+                y2: y + this.size / 2
+            };
+        },
         draw: function(center) {
             var sprite = loader.asset['img/oen_sprites.png'];
-            var width = 32;
+            var width = this.size;
             var offset = 0;
 
             if ( this.moving ) {
@@ -47,23 +56,65 @@ OEN = (function(doc, win, $, map) {
 
             context.drawImage(sprite, offset, 0, width, width, center.x - (width/2), center.y - (width/2), width, width);
         },
+        checkBoxCollision: function(x, y, other) {
+            var bounds = this.getBounds(x, y);
+            if (
+                bounds.x1 > other.x2    // Hero is left
+                || bounds.x2 < other.x1 // Hero is right
+                || bounds.y1 > other.y2 // Hero is below
+                || bounds.y2 < other.y1 // Hero is above
+            ) {
+                return false;
+            }
+            return true;
+        },
+        checkCollision: function(x, y) {
+            var tileCoords = coordsToTile(x, y);
+            var tiles      = getPossibleCollisionTiles(tileCoords.x, tileCoords.y);
+
+            var collides = false;
+            for (var i = 0; i < tiles.length; i++ ) {
+                var tile = tiles[i];
+                var tileCollides = this.checkBoxCollision(x, y, tile.bounds);
+                if ( tileCollides ) {
+                    collides = true;
+                }
+            }
+            return collides;
+        },
         update: function(dt) {
             this.moving = false;
+
+            var nextX;
+            var nextY;
+
             if ( KEY.isDown(KEY.codes.LEFT) ) {
-                hero.x -= Math.ceil(20 * dt);
+                nextX = hero.x - Math.ceil(20 * dt);
                 this.moving = true;
             }
             if ( KEY.isDown(KEY.codes.RIGHT) ) {
-                hero.x += Math.ceil(20 * dt);
+                nextX = hero.x + Math.ceil(20 * dt);
                 this.moving = true;
             }
             if ( KEY.isDown(KEY.codes.DOWN) ) {
-                hero.y += Math.ceil(20 * dt);
+                nextY = hero.y + Math.ceil(20 * dt);
                 this.moving = true;
             }
             if ( KEY.isDown(KEY.codes.UP) ) {
-                hero.y -= Math.ceil(20 * dt);
+                nextY = hero.y - Math.ceil(20 * dt);
                 this.moving = true;
+            }
+
+            if ( typeof nextX !== 'undefined' ) {
+                if ( !this.checkCollision(nextX, hero.y) ) {
+                    hero.x = nextX;
+                }
+            }
+
+            if ( typeof nextY !== 'undefined' ) {
+                if ( !this.checkCollision(hero.x, nextY) ) {
+                    hero.y = nextY;
+                }
             }
         }
     };
@@ -102,6 +153,52 @@ OEN = (function(doc, win, $, map) {
 
         lastRun = now;
         requestAnimationFrame(drawFrame);
+    };
+
+    var coordsToTile = function(x, y) {
+        var xOffset = x % tileSize;
+        var xTile = (x - xOffset) / tileSize;
+
+        var yOffset = y % tileSize;
+        var yTile = (y - yOffset) / tileSize;
+
+        return {
+            x: xTile,
+            y: yTile
+        };
+    };
+
+    var getPossibleCollisionTiles = function(x, y) {
+        var world = map[currentWorld];
+
+        var tiles = [];
+        for (var iy = y - 1; iy <= y + 1; iy++) {
+            // Check if row exists
+            var row  = world[iy];
+            if ( typeof row === 'undefined' ) {
+                continue;
+            }
+
+            for (var ix = x - 1; ix <= x + 1; ix++) {
+                if ( ix == x && iy == y ) {
+                    continue;
+                }
+
+                var tile = row[ix];
+                if ( typeof tile === 'undefined' ) {
+                    continue;
+                }
+
+                var props = map.tiles[tile];
+
+                if ( props.collide ) {
+                    var bounds = map.getBounds(ix, iy);
+                    tiles.push({x: ix, y: iy, props: props, bounds: bounds});
+                }
+            }
+        }
+
+        return tiles;
     };
 
     var getCoords = function(coord, center) {
