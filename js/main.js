@@ -32,18 +32,19 @@ OEN = (function(doc, win, $, map) {
         draw: function(center) {
             var sprite = loader.asset['img/oen_sprites.png'];
             var width = 32;
+            var offset = 0;
 
             if ( this.moving ) {
                 if ( Date.now() - this.lastFrame > 150 || !this.lastFrame ) {
                     this.frame++;
                     this.lastFrame = Date.now();
                 }
+                offset = width * (1 + this.frame % 4);
             }
             else {
                 this.frame = 0;
             }
 
-            var offset = width * (this.frame % 4);
             context.drawImage(sprite, offset, 0, width, width, center.x - (width/2), center.y - (width/2), width, width);
         },
         update: function(dt) {
