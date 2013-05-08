@@ -67,12 +67,22 @@ textarea {
 #game-container {
     margin: 0px auto;
     width: 700px;
+	position: relative;
 }
 
 #game-canvas {
     background: #ff5296;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
+#hud-canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+}
 
 
 

@@ -143,6 +143,22 @@ OEN = (function(doc, win, $, map) {
         }
     };
 
+    var hud = {
+        size: 50,
+        init: function() {
+            this.canvas  = doc.getElementById('hud-canvas');
+            this.context = this.canvas.getContext('2d');
+        },
+        draw: function() {
+            var startX = this.size;
+            var startY = this.canvas.height - this.size;
+            var width  = this.canvas.width - (this.size * 2);
+
+            this.context.fillStyle = 'red';
+            this.context.fillRect(startX, startY, width, this.size);
+        }
+    };
+
     var drawFrame = function() {
         var now = Date.now();
         var dt  = (now - lastRun) / 1000.0;
@@ -312,10 +328,13 @@ OEN = (function(doc, win, $, map) {
             loader.init(function() {
                 OEN.play();
             })
+
+            hud.init();
         },
 
         play: function() {
             requestAnimationFrame(drawFrame);
+            hud.draw();
         }
     };
 }(document, window, jQuery, MAP));
