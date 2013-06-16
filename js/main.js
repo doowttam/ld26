@@ -54,7 +54,6 @@ OEN = (function(doc, win, $, map) {
         requestAnimationFrame(drawFrame);
     };
 
-
     var drawMap = function() {
         var center = {
             x: canvas.width / 2,
@@ -270,15 +269,21 @@ OEN.hero = (function(doc, win, $, map) {
         },
         draw: function(center) {
             var sprite = OEN.loader.asset['img/oen_sprites.png'];
-            var width = this.size;
+            var width  = this.size;
             var offset = 0;
 
-            if ( this.moving ) {
+            if ( this.moveState.moving ) {
                 if ( Date.now() - this.lastFrame > 150 || !this.lastFrame ) {
                     this.frame++;
                     this.lastFrame = Date.now();
                 }
-                offset = width * (1 + this.frame % 4);
+
+                frameOffset = 1;
+                if ( this.moveState.right ) {
+                    frameOffset = 5;
+                }
+
+                offset = width * (frameOffset + this.frame % 4);
             }
             else {
                 this.frame = 0;
@@ -313,26 +318,30 @@ OEN.hero = (function(doc, win, $, map) {
             return collides;
         },
         update: function(dt) {
-            this.moving = false;
+            this.moveState = { moving: false };
 
             var nextX;
             var nextY;
 
             if ( KEY.isDown(KEY.codes.LEFT) ) {
                 nextX = this.x - Math.ceil(20 * dt);
-                this.moving = true;
+                this.moveState.moving = true;
+                this.moveState.left   = true;
             }
             if ( KEY.isDown(KEY.codes.RIGHT) ) {
                 nextX = this.x + Math.ceil(20 * dt);
-                this.moving = true;
+                this.moveState.moving = true;
+                this.moveState.right  = true;
             }
             if ( KEY.isDown(KEY.codes.DOWN) ) {
                 nextY = this.y + Math.ceil(20 * dt);
-                this.moving = true;
+                this.moveState.moving = true;
+                this.moveState.down   = true;
             }
             if ( KEY.isDown(KEY.codes.UP) ) {
                 nextY = this.y - Math.ceil(20 * dt);
-                this.moving = true;
+                this.moveState.moving = true;
+                this.moveState.up     = true;
             }
 
             if ( typeof nextX !== 'undefined' ) {
